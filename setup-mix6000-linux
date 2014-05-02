@@ -1,0 +1,39 @@
+#!/bin/bash
+
+NOT_SOURCED=0
+
+test "X$(basename -- "$0")" = "Xsetup-mix6000-linux" && NOT_SOURCED=1
+
+if [ $NOT_SOURCED = 1 ]; then 
+    echo
+    echo "$(tput setaf 2)""Please source the script: source install-mix6000-linux""$(tput sgr 0)"
+    echo
+    exit 1
+fi
+
+CPWD=`pwd`
+
+echo 
+echo "$(tput setaf 2)""$(tput bold)""MIX6000 Setup:" "$(tput sgr 0)"
+echo
+echo "$(tput setaf 2)""Please enter your sudo password:""$(tput sgr 0)"
+sudo -p "" -v
+
+# Enable caching of username and password
+git config --global credential.helper cache
+
+cd ${CPWD}/oe
+
+ENVIR=`ls | grep environment`
+
+source ${ENVIR}
+
+echo
+echo "$(tput setaf 2)""OpenEmbedded environment setup.""$(tput sgr 0)"
+echo 
+echo "$(tput setaf 2)""$(tput bold)""Build: bitbake mix6000-image""$(tput sgr 0)"
+echo
+
+
+
+

@@ -1,0 +1,99 @@
+#!/bin/bash
+
+NOT_SOURCED=0
+
+test "X$(basename -- "$0")" = "Xinstall-mix6000-linux" && NOT_SOURCED=1
+
+if [ $NOT_SOURCED = 1 ]; then 
+    echo
+    echo "$(tput setaf 2)""Please source the script: source install-mix6000-linux""$(tput sgr 0)"
+    echo
+    exit 1
+fi
+
+CPWD=`pwd`
+USERN=`whoami`
+
+echo 
+echo "$(tput setaf 2)""$(tput bold)""MIX6000 Installer:" "$(tput sgr 0)"
+echo
+echo "$(tput setaf 2)""Please enter your sudo password:""$(tput sgr 0)"
+sudo -p "" -v
+echo
+echo "$(tput setaf 2)""Installing missing components on Ubuntu...""$(tput sgr 0)"
+echo
+
+sudo apt-get -y install git gawk wget diffstat unzip texinfo gcc-multilib build-essential chrpath libsdl1.2-dev xterm
+
+git clone https://github.com/Angstrom-distribution/setup-scripts oe
+
+# Enable caching of username and password
+git config --global credential.helper cache
+
+git config --global user.email "${USERN}@mixtelematics.com"
+git config --global user.name "${USERN}"
+
+# Open Embedded want bash (not dash)
+sudo chsh -s /bin/bash `whoami`
+
+
+# Add additional layers
+
+cd ${CPWD}/oe/sources
+
+echo
+echo "$(tput setaf 2)""Adding META-ATMEL to layers.txt:""$(tput sgr 0)"
+
+grep -q "meta-atmel,https://github.com/linux4sam/meta-atmel,master,HEAD" layers.txt || echo meta-atmel,https://github.com/linux4sam/meta-atmel,master,HEAD >> layers.txt
+
+echo
+echo "$(tput setaf 2)""Adding META-MIX6000 to layers.txt (GutHub login required):""$(tput sgr 0)"
+echo
+
+
+grep -q "meta-mix6000,https://github.com/MiXTelematics/meta-mix6000,master,HEAD" layers.txt || echo meta-mix6000,https://github.com/MiXTelematics/meta-mix6000,master,HEAD >> layers.txt
+
+
+cd ${CPWD}/oe
+
+MACHINE=sama5d3xek ./oebb.sh config sama5d3xek
+
+# Tuning Open Embedded for ATMEL board
+
+cd ${CPWD}/oe/conf
+
+# Modifying bblayers.conf
+
+echo
+echo "$(tput setaf 2)""Modifying oe/conf/bblayers.conf:""$(tput sgr 0)"
+echo
+
+if [[ ! -f bblayers.conf.orig ]]; then
+   cp bblayers.conf bblayers.conf.orig
+fi
+
+grep -q '${TOPDIR}/sources/meta-mix6000 \\' bblayers.conf || sed -i '/${TOPDIR}\/sources\/openembedded-core\/meta \\/a\  ${TOPDIR}\/sources\/meta-mix6000 \\' bblayers.conf
+grep -q '${TOPDIR}/sources/meta-atmel \\' bblayers.conf || sed -i '/${TOPDIR}\/sources\/meta-mix6000 \\/a\  ${TOPDIR}\/sources\/meta-atmel \\' bblayers.conf
+
+# Modifying local.conf
+
+echo
+echo "$(tput setaf 2)""Modifying oe/conf/local.conf:""$(tput sgr 0)"
+echo
+
+if [[ ! -f local.conf.orig ]]; then
+   cp local.conf local.conf.orig
+fi
+
+grep -q '#INHERIT += "rm_work"' local.conf || sed -i 's/INHERIT += "rm_work"/#INHERIT += "rm_work"/' local.conf
+grep -q 'NO32LIBS="1"' local.conf || sed -i '/INHERIT += "rm_work"/aNO32LIBS="1"' local.conf
+
+cd ${CPWD}
+
+echo 
+echo "$(tput setaf 2)""$(tput bold)""Run: setup-mix6000-linux" "$(tput sgr 0)"
+echo
+
+
+
+
