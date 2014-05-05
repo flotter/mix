@@ -19,6 +19,9 @@ echo
 echo "$(tput setaf 2)""Please enter your sudo password:""$(tput sgr 0)"
 sudo -p "" -v
 
+# Open Embedded want bash (not dash)
+sudo chsh -s /bin/bash `whoami`
+
 # Enable caching of username and password
 git config --global credential.helper cache
 
