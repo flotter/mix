@@ -23,7 +23,7 @@ echo
 echo "$(tput setaf 2)""Installing missing components on Ubuntu...""$(tput sgr 0)"
 echo
 
-sudo apt-get -y install git gawk wget diffstat unzip texinfo gcc-multilib build-essential chrpath libsdl1.2-dev xterm openjdk-7-jre
+sudo apt-get -y install git gawk wget diffstat unzip texinfo gcc-multilib build-essential chrpath libsdl1.2-dev xterm openjdk-7-jre wine kdiff3 gitk
 
 git clone https://github.com/Angstrom-distribution/setup-scripts oe
 
@@ -87,6 +87,106 @@ fi
 
 grep -q '#INHERIT += "rm_work"' local.conf || sed -i 's/INHERIT += "rm_work"/#INHERIT += "rm_work"/' local.conf
 grep -q 'NO32LIBS="1"' local.conf || sed -i '/INHERIT += "rm_work"/aNO32LIBS="1"' local.conf
+
+echo
+echo "$(tput setaf 2)""Installing DS-5 debugger (and Eclipse IDE)""$(tput sgr 0)"
+echo
+
+cd ${CPWD}
+mkdir -p downloads
+cd ${CPWD}/downloads
+
+if [ ! -e DS500-BN-00019-r5p0-18rel0.tgz ]; then
+    wget http://10.34.203.100/TOOLS/DS500-BN-00019-r5p0-18rel0.tgz
+    wget http://10.34.203.100/TOOLS/workspace.tar.gz
+    wget http://10.34.203.100/TOOLS/lint.tar.gz
+    tar xvzf DS500-BN-00019-r5p0-18rel0.tgz
+fi
+
+if [ ! -d ${CPWD}/ds-5 ]; then
+    sudo ${CPWD}/downloads/install.sh --i-agree-to-the-contained-eula --force --destination ${CPWD}/ds-5 --no-interactive --quiet --skip-menu-install
+fi
+
+if [ ! -d ${CPWD}/workspace ]; then
+    cd ${CPWD}
+    tar xzf ${CPWD}/downloads/workspace.tar.gz
+fi
+
+echo
+echo "$(tput setaf 2)""Adding CROSSGCC plugin to Eclipse""$(tput sgr 0)"
+echo
+
+cd ${CPWD}/ds-5/sw/eclipse
+./eclipse -application org.eclipse.equinox.p2.director -noSplash -repository http://download.eclipse.org/releases/kepler -installIUs org.eclipse.cdt.build.crossgcc.feature.group
+
+
+echo
+echo "$(tput setaf 2)""$(tput bold)""Creating source workspace for MIX6000 development.""$(tput sgr 0)"
+echo 
+
+mkdir -p ${CPWD}/workspace
+cd ${CPWD}/workspace
+
+echo
+echo "$(tput setaf 2)""Checking out MESA and MIX6000 (Develop) repositories:""$(tput sgr 0)"
+echo 
+
+if [ ! -d ${CPWD}/workspace/MESA ]; then
+    git clone -b Develop https://github.com/MiXTelematics/MESA
+fi
+
+if [ ! -d ${CPWD}/workspace/mix6000 ]; then
+    git clone -b Develop https://github.com/MiXTelematics/mix6000
+fi
+
+echo
+echo "$(tput setaf 2)""Creating new MESA and MIX6000 branches for development""$(tput sgr 0)"
+echo 
+
+cd ${CPWD}/workspace/MESA
+MESA_DEV=0
+test "$(git status | grep "On branch" | grep -o Develop)" = "Develop" && MESA_DEV=1
+if [ $MESA_DEV = 1 ]; then 
+    echo
+    echo "$(tput setaf 2)""Branching (Develop) MESA ==> (${USERN}-linux) MESA for your development""$(tput sgr 0)"
+    echo
+    git branch ${USERN}-linux
+    git checkout ${USERN}-linux  
+fi
+
+cd ${CPWD}/workspace/mix6000
+MIX6000_DEV=0
+test "$(git status | grep "On branch" | grep -o Develop)" = "Develop" && MIX6000_DEV=1
+if [ $MIX6000_DEV = 1 ]; then 
+    echo
+    echo "$(tput setaf 2)""Branching (Develop) MESA ==> (${USERN}-linux) MESA for your development""$(tput sgr 0)"
+    echo
+    git branch ${USERN}-linux
+    git checkout ${USERN}-linux  
+fi
+
+echo
+echo "$(tput setaf 2)""OpenEmbedded environment setup.""$(tput sgr 0)"
+echo 
+
+cd ${CPWD}/oe
+
+ENVIR=`ls | grep environment`
+
+source ${ENVIR}
+
+echo
+echo "$(tput setaf 2)""$(tput bold)""Building MIX6000 SDK (and compiler)""$(tput sgr 0)"
+echo 
+
+cd ${CPWD}/oe
+#bitbake meta-toolchain
+cd ${CPWD}/oe/build/
+cd $(ls | grep tmp)
+cd deploy/sdk
+echo "${CPWD}/sdk" > stdin_sdk
+./$(ls | grep toolchain) < stdin_sdk
+
 
 cd ${CPWD}
 

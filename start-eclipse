@@ -1,0 +1,19 @@
+#!/bin/bash
+
+NOT_SOURCED=0
+
+test "X$(basename -- "$0")" = "Xstart-eclipse" && NOT_SOURCED=1
+
+if [ $NOT_SOURCED = 1 ]; then 
+    echo
+    echo "$(tput setaf 2)""Please source the script: source install-mix6000-linux""$(tput sgr 0)"
+    echo
+    exit 1
+fi
+
+CPWD=`pwd`
+USERN=`whoami`
+
+source $CPWD/setup-mix6000-linux
+
+$CPWD/ds-5/bin/eclipse -data $CPWD/workspace &

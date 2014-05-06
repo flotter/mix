@@ -5,7 +5,7 @@ The installer and setup scripts will create a folder 'mix' in the current direct
 INSTALL:
 ---------------------------------------
 
-(Install OpenEmbedded) 
+(Install OpenEmbedded - This takes several hours) 
 
 cd ~/
 
@@ -28,13 +28,28 @@ cd ~/mix
 source ./setup-mix6000-linux
 
 
-BUILD:
+BUILD/RUN:
 ----------------------------------------
 
-(Build root filesystem)
+(Build root filesystem - This takes some hours)
 
-cd ~/mix/oe
+cd ~/mix/
 
-bitbake mix6000-image
+source start-build
 
+OR:
 
+(Develop/Debug using Eclipse)
+
+cd ~/mix/
+
+source start-eclipse
+
+LICENSE:
+-----------------------------------------
+
+You need to register on the ARM website here:  https://login.arm.com/register.php
+
+Then get the activation code here: http://ds.arm.com/ds-5-community-edition/getting-started/
+
+Finally, in Eclipse under Help go to ARM License Manager and enter the activation code and login details.
