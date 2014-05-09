@@ -72,8 +72,8 @@ if [[ ! -f bblayers.conf.orig ]]; then
    cp bblayers.conf bblayers.conf.orig
 fi
 
-grep -q '${TOPDIR}/sources/meta-mix6000 \\' bblayers.conf || sed -i '/${TOPDIR}\/sources\/openembedded-core\/meta \\/a\  ${TOPDIR}\/sources\/meta-mix6000 \\' bblayers.conf
 grep -q '${TOPDIR}/sources/meta-atmel \\' bblayers.conf || sed -i '/${TOPDIR}\/sources\/meta-mix6000 \\/a\  ${TOPDIR}\/sources\/meta-atmel \\' bblayers.conf
+grep -q '${TOPDIR}/sources/meta-mix6000 \\' bblayers.conf || sed -i '/${TOPDIR}\/sources\/openembedded-core\/meta \\/a\  ${TOPDIR}\/sources\/meta-mix6000 \\' bblayers.conf
 
 # Modifying local.conf
 
