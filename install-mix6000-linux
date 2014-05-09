@@ -100,6 +100,7 @@ if [ ! -e DS500-BN-00019-r5p0-18rel0.tgz ]; then
     wget http://10.34.203.100/TOOLS/DS500-BN-00019-r5p0-18rel0.tgz
     wget http://10.34.203.100/TOOLS/workspace.tar.gz
     wget http://10.34.203.100/TOOLS/lint.tar.gz
+    wget http://10.34.203.100/TOOLS/uboot.env
     tar xvzf DS500-BN-00019-r5p0-18rel0.tgz
 fi
 
@@ -180,7 +181,7 @@ echo "$(tput setaf 2)""$(tput bold)""Building MIX6000 SDK (and compiler)""$(tput
 echo 
 
 cd ${CPWD}/oe
-#bitbake meta-toolchain
+bitbake meta-toolchain
 cd ${CPWD}/oe/build/
 cd $(ls | grep tmp)
 cd deploy/sdk

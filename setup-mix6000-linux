@@ -49,6 +49,7 @@ OE_LD=$(find `pwd` -name "*\-ld")
 
 export CC="$OE_CC --sysroot=$OE_SYSROOT"
 export LD="$OE_LD --sysroot=$OE_SYSROOT"
+export ECLIPSE_SYS=$OE_SYSROOT
 
 export CCLINT=$OE_CC
 export CCPLUSLINT=$OE_PP

@@ -1,0 +1,86 @@
+#!/bin/bash
+
+NOT_SOURCED=0
+
+test "X$(basename -- "$0")" = "Xwrite-sdcard-boot" && NOT_SOURCED=1
+
+if [ $NOT_SOURCED = 1 ]; then 
+    echo
+    echo "$(tput setaf 2)""Please source the script: source install-mix6000-linux""$(tput sgr 0)"
+    echo
+    exit 1
+fi
+
+echo
+echo "$(tput setaf 2)""Please enter your sudo password:""$(tput sgr 0)"
+sudo -p "" -v
+
+CPWD=`pwd`
+USERN=`whoami`
+
+cd $CPWD/oe/deploy
+cd $(ls | grep libc)
+cd $(ls | grep image)
+cd $(ls | grep sam)
+
+OE_DEPLOY=`pwd`
+BOOT_PATH="/media/$USERN/BOOT"
+FS_PATH="/media/$USERN/FS"
+
+if [ ! -d $BOOT_PATH ]; then
+    echo
+    echo "$(tput setaf 2)""BOOT partition not found under $BOOT_PATH""$(tput sgr 0)"
+    echo
+    cd $CPWD
+    return
+fi
+
+echo
+echo "$(tput setaf 2)""Deleting boot files from SDCARD...""$(tput sgr 0)"
+echo
+
+sudo rm -rf $BOOT_PATH/*
+sync
+
+echo
+echo "$(tput setaf 2)""Copying files:""$(tput sgr 0)"
+echo
+
+cd $OE_DEPLOY
+BOOT_BIN="$(ls | grep sdcard)"
+echo "$(tput setaf 2)""$BOOT_BIN --> BOOT.BIN""$(tput sgr 0)"
+sudo cp $BOOT_BIN $BOOT_PATH/BOOT.BIN
+
+cd $OE_DEPLOY
+UBOOT_BIN="$(ls | grep u-boot.bin)"
+echo "$(tput setaf 2)""$UBOOT_BIN --> $UBOOT_BIN""$(tput sgr 0)"
+sudo cp $UBOOT_BIN $BOOT_PATH
+
+cd $CPWD/downloads
+UBOOT_ENV=uboot.env
+echo "$(tput setaf 2)""$UBOOT_ENV --> $UBOOT_ENV""$(tput sgr 0)"
+sudo cp $UBOOT_ENV $BOOT_PATH
+
+cd $OE_DEPLOY
+UIMAGE=uImage
+echo "$(tput setaf 2)""$UIMAGE --> $UIMAGE""$(tput sgr 0)"
+sudo cp $UIMAGE $BOOT_PATH
+
+cd $OE_DEPLOY
+DTB="$(ls | grep 35ek.dtb)"
+echo "$(tput setaf 2)""$DTB --> dtb""$(tput sgr 0)"
+sudo cp $DTB $BOOT_PATH/dtb
+
+echo
+sync
+
+sudo umount $BOOT_PATH
+sudo umount $FS_PATH
+
+echo "$(tput setaf 2)""$(tput bold)""BOOT partition updated. Save to remove SDCARD." "$(tput sgr 0)"
+echo
+
+cd $CPWD
+
+
+
