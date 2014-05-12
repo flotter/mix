@@ -72,8 +72,8 @@ if [[ ! -f bblayers.conf.orig ]]; then
    cp bblayers.conf bblayers.conf.orig
 fi
 
-grep -q '${TOPDIR}/sources/meta-atmel \\' bblayers.conf || sed -i '/${TOPDIR}\/sources\/meta-mix6000 \\/a\  ${TOPDIR}\/sources\/meta-atmel \\' bblayers.conf
 grep -q '${TOPDIR}/sources/meta-mix6000 \\' bblayers.conf || sed -i '/${TOPDIR}\/sources\/openembedded-core\/meta \\/a\  ${TOPDIR}\/sources\/meta-mix6000 \\' bblayers.conf
+grep -q '${TOPDIR}/sources/meta-atmel \\' bblayers.conf || sed -i '/${TOPDIR}\/sources\/meta-mix6000 \\/a\  ${TOPDIR}\/sources\/meta-atmel \\' bblayers.conf
 
 # Modifying local.conf
 
@@ -180,13 +180,33 @@ echo
 echo "$(tput setaf 2)""$(tput bold)""Building MIX6000 SDK (and compiler)""$(tput sgr 0)"
 echo 
 
+# Should we rebuild meta-toolchain?
+
 cd ${CPWD}/oe
-bitbake meta-toolchain
-cd ${CPWD}/oe/build/
-cd $(ls | grep tmp)
-cd deploy/sdk
-echo "${CPWD}/sdk" > stdin_sdk
-./$(ls | grep toolchain) < stdin_sdk
+cd build
+CHECK1=$(ls | grep tmp)
+if [ -z $CHECK1 ]; then
+   cd ${CPWD}/oe
+   bitbake meta-toolchain
+else
+   cd ${CPWD}/oe/build/
+   cd $(ls | grep tmp)
+   CHECK2=$(ls deploy/sdk/ | grep toolchain)
+   if [ -z $CHECK2 ]; then
+       cd ${CPWD}/oe
+       bitbake meta-toolchain
+   fi
+fi
+
+# Should we reinstall sdk?
+
+if [ ! -d ${CPWD}/sdk ]; then
+   cd ${CPWD}/oe/build/
+   cd $(ls | grep tmp)
+   cd deploy/sdk
+   echo "${CPWD}/sdk" > stdin_sdk
+   ./$(ls | grep toolchain) < stdin_sdk
+fi
 
 
 cd ${CPWD}
