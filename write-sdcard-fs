@@ -2,7 +2,7 @@
 
 NOT_SOURCED=0
 
-test "X$(basename -- "$0")" = "Xwrite-sdcard-boot" && NOT_SOURCED=1
+test "X$(basename -- "$0")" = "Xwrite-sdcard-fs" && NOT_SOURCED=1
 
 if [ $NOT_SOURCED = 1 ]; then 
     echo
@@ -36,7 +36,6 @@ else
     echo 
 fi
 
-
 cd $CPWD/oe/deploy
 cd $(ls | grep libc)
 cd $(ls | grep image)
@@ -48,9 +47,9 @@ SDCARD_DEV="mmcblk0"
 read -p "Please reinsert the SDCARD (Remove and Insert to force update), then press enter"
 echo
 
-if [ ! -d $BOOT_PATH ]; then
+if [ ! -d $FS_PATH ]; then
     echo
-    echo "$(tput setaf 2)""BOOT partition not found under $BOOT_PATH""$(tput sgr 0)"
+    echo "$(tput setaf 2)""Filesystem (FS) partition not found under $FS_PATH""$(tput sgr 0)"
     echo
     echo "$(tput setaf 2)""Run: source sdcard-format""$(tput sgr 0)"
     echo
@@ -59,16 +58,16 @@ if [ ! -d $BOOT_PATH ]; then
 fi
 
 echo
-echo "$(tput setaf 2)""Reformatting boot partition on SDCARD...""$(tput sgr 0)"
+echo "$(tput setaf 2)""Reformatting SDCARD filesystem partition...""$(tput sgr 0)"
 echo
 
-sudo umount $BOOT_PATH
-sudo mkfs.msdos -F 32 /dev/${SDCARD_DEV}p1 -n BOOT
+sudo umount $FS_PATH
+sudo mkfs.ext4 /dev/${SDCARD_DEV}p2 -L FS
 sync
 
 read -p "Please reinsert the SDCARD (Remove and Insert to force update), then press enter"
 
-if [ ! -d $BOOT_PATH ]; then
+if [ ! -d $FS_PATH ]; then
     echo
     echo "$(tput setaf 2)""Filesystem (FS) partition not found under $FS_PATH""$(tput sgr 0)"
     echo
@@ -83,37 +82,20 @@ echo "$(tput setaf 2)""Copying files:""$(tput sgr 0)"
 echo
 
 cd $OE_DEPLOY
-BOOT_BIN="$(ls | grep sdcard)"
-echo "$(tput setaf 2)""$BOOT_BIN --> BOOT.BIN""$(tput sgr 0)"
-sudo cp $BOOT_BIN $BOOT_PATH/BOOT.BIN
 
-cd $OE_DEPLOY
-UBOOT_BIN="$(ls | grep u-boot.bin)"
-echo "$(tput setaf 2)""$UBOOT_BIN --> $UBOOT_BIN""$(tput sgr 0)"
-sudo cp $UBOOT_BIN $BOOT_PATH
+FS_IMAGE=$(ls | grep mix6000*tar.xz)
 
-cd $CPWD/downloads
-UBOOT_ENV=uboot.env
-echo "$(tput setaf 2)""$UBOOT_ENV --> $UBOOT_ENV""$(tput sgr 0)"
-sudo cp $UBOOT_ENV $BOOT_PATH
-
-cd $OE_DEPLOY
-UIMAGE=uImage
-echo "$(tput setaf 2)""$UIMAGE --> $UIMAGE""$(tput sgr 0)"
-sudo cp $UIMAGE $BOOT_PATH
-
-cd $OE_DEPLOY
-DTB="$(ls | grep 35ek.dtb)"
-echo "$(tput setaf 2)""$DTB --> dtb""$(tput sgr 0)"
-sudo cp $DTB $BOOT_PATH/dtb
-
-echo
+sudo tar xvJf $FS_IMAGE -C $FS_PATH
 sync
+echo
 
 sudo umount $BOOT_PATH
 sudo umount $FS_PATH
 
-echo "$(tput setaf 2)""$(tput bold)""BOOT partition updated. Save to remove SDCARD." "$(tput sgr 0)"
+echo "$(tput setaf 2)""$(tput bold)""FS partition updated. Save to remove SDCARD." "$(tput sgr 0)"
 echo
 
 cd $CPWD
+
+
+
