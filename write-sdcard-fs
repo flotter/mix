@@ -63,6 +63,8 @@ echo
 
 sudo umount $FS_PATH
 sudo mkfs.ext4 /dev/${SDCARD_DEV}p2 -L FS
+sudo tune2fs -O ^huge_file /dev/${SDCARD_DEV}p2 
+sudo fsck /dev/${SDCARD_DEV}p2
 sync
 
 read -p "Please reinsert the SDCARD (Remove and Insert to force update), then press enter"
