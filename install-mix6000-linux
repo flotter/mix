@@ -35,6 +35,7 @@ git config --global user.name "${USERN}"
 
 # Open Embedded want bash (not dash)
 sudo chsh -s /bin/bash `whoami`
+sudo ln -s -f /bin/bash /bin/sh
 
 
 # Add additional layers
