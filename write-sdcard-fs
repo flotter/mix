@@ -94,7 +94,7 @@ echo
 sudo umount $BOOT_PATH
 sudo umount $FS_PATH
 
-echo "$(tput setaf 2)""$(tput bold)""FS partition updated. Save to remove SDCARD." "$(tput sgr 0)"
+echo "$(tput setaf 2)""$(tput bold)""FS partition updated. Safe to remove SDCARD." "$(tput sgr 0)"
 echo
 
 cd $CPWD
