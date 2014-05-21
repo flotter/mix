@@ -23,7 +23,7 @@ echo
 echo "$(tput setaf 2)""Installing missing components on Ubuntu...""$(tput sgr 0)"
 echo
 
-sudo apt-get -y install git gawk wget diffstat unzip texinfo gcc-multilib build-essential chrpath libsdl1.2-dev xterm 
+sudo apt-get -y install git gawk wget diffstat unzip texinfo gcc-multilib build-essential chrpath libsdl1.2-dev xterm eclipse-cdt
 #openjdk-7-jre wine kdiff3 gitk
 
 git clone https://github.com/Angstrom-distribution/setup-scripts oe
