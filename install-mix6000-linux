@@ -99,7 +99,7 @@ cd ${CPWD}/downloads
 
 if [ ! -e DS500-BN-00019-r5p0-18rel0.tgz ]; then
     wget http://10.34.203.100/TOOLS/DS500-BN-00019-r5p0-18rel0.tgz
-    wget http://10.34.203.100/TOOLS/workspacev1.2.tar.gz
+    wget http://10.34.203.100/TOOLS/workspacev1.3.tar.gz
     wget http://10.34.203.100/TOOLS/lintv1.1.tar.gz
     wget http://10.34.203.100/TOOLS/uboot.env
     tar xvzf DS500-BN-00019-r5p0-18rel0.tgz
@@ -111,7 +111,7 @@ fi
 
 if [ ! -d ${CPWD}/workspace ]; then
     cd ${CPWD}
-    tar xzf ${CPWD}/downloads/workspacev1.2.tar.gz
+    tar xzf ${CPWD}/downloads/workspacev1.3.tar.gz
 fi
 
 if [ ! -d ${CPWD}/tools/lint ]; then
@@ -239,6 +239,18 @@ if [ ! -d ${CPWD}/sdk ]; then
    echo "${CPWD}/sdk" > stdin_sdk
    ./$(ls | grep toolchain) < stdin_sdk
 fi
+
+echo
+echo "$(tput setaf 2)""$(tput bold)""Importing MIX6000 project into workspace""$(tput sgr 0)"
+echo
+echo "$(tput setaf 2)""$(tput bold)""Please IGNORE path not found errors...""$(tput sgr 0)"
+echo 
+
+cd ${CPWD}
+
+# Import MIX6000 Project
+
+$CPWD/ds-5/bin/eclipse -data $CPWD/workspace -nosplash -application org.eclipse.cdt.managedbuilder.core.headlessbuild -import $CPWD/workspace/mix6000/project
 
 
 cd ${CPWD}

@@ -70,6 +70,7 @@ cd ${CPWD}
 
 echo
 echo "$(tput setaf 2)""$(tput bold)""Build: source start-build""$(tput sgr 0)"
+echo "$(tput setaf 2)""$(tput bold)""(Set Build Configuration to 'linux_oe_debug' first)""$(tput sgr 0)"
 echo
 
 echo
