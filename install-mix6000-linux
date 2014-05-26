@@ -99,8 +99,8 @@ cd ${CPWD}/downloads
 
 if [ ! -e DS500-BN-00019-r5p0-18rel0.tgz ]; then
     wget http://10.34.203.100/TOOLS/DS500-BN-00019-r5p0-18rel0.tgz
-    wget http://10.34.203.100/TOOLS/workspace.tar.gz
-    wget http://10.34.203.100/TOOLS/lint.tar.gz
+    wget http://10.34.203.100/TOOLS/workspacev1.2.tar.gz
+    wget http://10.34.203.100/TOOLS/lintv1.1.tar.gz
     wget http://10.34.203.100/TOOLS/uboot.env
     tar xvzf DS500-BN-00019-r5p0-18rel0.tgz
 fi
@@ -111,7 +111,14 @@ fi
 
 if [ ! -d ${CPWD}/workspace ]; then
     cd ${CPWD}
-    tar xzf ${CPWD}/downloads/workspace.tar.gz
+    tar xzf ${CPWD}/downloads/workspacev1.2.tar.gz
+fi
+
+if [ ! -d ${CPWD}/tools/lint ]; then
+    cd ${CPWD}
+    mkdir -p tools
+    cd tools
+    tar xzf ${CPWD}/downloads/lintv1.1.tar.gz
 fi
 
 echo
@@ -144,16 +151,31 @@ fi
 echo
 echo "$(tput setaf 2)""Creating new MESA and MIX6000 branches for development""$(tput sgr 0)"
 echo 
+echo "$(tput setaf 2)""Please provide your MIX6000 development branch name: ""$(tput sgr 0)"
+read BRANCHNAME
+echo
+
+if [ -z $BRANCHNAME ]; then
+   BRANCHNAME="${USERN}-linux"
+   NEWBRANCH=1
+else
+   NEWBRANCH=0
+fi
+
 
 cd ${CPWD}/workspace/MESA
 MESA_DEV=0
 test "$(git status | grep "On branch" | grep -o Develop)" = "Develop" && MESA_DEV=1
 if [ $MESA_DEV = 1 ]; then 
     echo
-    echo "$(tput setaf 2)""Branching (Develop) MESA ==> (${USERN}-linux) MESA for your development""$(tput sgr 0)"
+    echo "$(tput setaf 2)""Branching (Develop) MESA ==> ($BRANCHNAME) MESA for your development""$(tput sgr 0)"
     echo
-    git branch ${USERN}-linux
-    git checkout ${USERN}-linux  
+
+    if [ $NEWBRANCH = 1 ]; then 
+       git branch $BRANCHNAME
+    fi
+
+    git checkout $BRANCHNAME 
 fi
 
 cd ${CPWD}/workspace/mix6000
@@ -161,10 +183,14 @@ MIX6000_DEV=0
 test "$(git status | grep "On branch" | grep -o Develop)" = "Develop" && MIX6000_DEV=1
 if [ $MIX6000_DEV = 1 ]; then 
     echo
-    echo "$(tput setaf 2)""Branching (Develop) MESA ==> (${USERN}-linux) MESA for your development""$(tput sgr 0)"
+    echo "$(tput setaf 2)""Branching (Develop) MESA ==> ($BRANCHNAME) MESA for your development""$(tput sgr 0)"
     echo
-    git branch ${USERN}-linux
-    git checkout ${USERN}-linux  
+    
+    if [ $NEWBRANCH = 1 ]; then 
+       git branch $BRANCHNAME
+    fi
+
+    git checkout $BRANCHNAME  
 fi
 
 echo
@@ -184,19 +210,24 @@ echo
 # Should we rebuild meta-toolchain?
 
 cd ${CPWD}/oe
+if [ -d ${CPWD}/oe/build ]; then
 cd build
-CHECK1=$(ls | grep tmp)
-if [ -z $CHECK1 ]; then
+	CHECK1=$(ls | grep tmp)
+	if [ -z $CHECK1 ]; then
+	   cd ${CPWD}/oe
+	   bitbake meta-toolchain
+	else
+	   cd ${CPWD}/oe/build/
+	   cd $(ls | grep tmp)
+	   CHECK2=$(ls deploy/sdk/ | grep toolchain)
+	   if [ -z $CHECK2 ]; then
+	       cd ${CPWD}/oe
+	       bitbake meta-toolchain
+	   fi
+	fi
+else
    cd ${CPWD}/oe
    bitbake meta-toolchain
-else
-   cd ${CPWD}/oe/build/
-   cd $(ls | grep tmp)
-   CHECK2=$(ls deploy/sdk/ | grep toolchain)
-   if [ -z $CHECK2 ]; then
-       cd ${CPWD}/oe
-       bitbake meta-toolchain
-   fi
 fi
 
 # Should we reinstall sdk?

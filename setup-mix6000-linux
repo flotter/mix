@@ -43,11 +43,12 @@ OE_SYSROOT=`pwd`
 cd ${CPWD}/sdk/sysroots
 cd $(ls | grep x86)
 
-OE_PP=$(find `pwd` -name "*\-g++")
-OE_CC=$(find `pwd` -name "*\-gcc")
-OE_LD=$(find `pwd` -name "*\-ld")
+export OE_PP=$(find `pwd` -name "*\-g++")
+export OE_CC=$(find `pwd` -name "*\-gcc")
+export OE_LD=$(find `pwd` -name "*\-ld")
 
 export CC="$OE_CC --sysroot=$OE_SYSROOT"
+export CXX="$OE_PP --sysroot=$OE_SYSROOT"
 export LD="$OE_LD --sysroot=$OE_SYSROOT"
 export ECLIPSE_SYS=$OE_SYSROOT
 
@@ -58,7 +59,7 @@ echo
 echo "$(tput setaf 2)""GCC/SDK paths setup""$(tput sgr 0)"
 echo 
 
-export PCLINT_PATH=${CPWD}/pclint
+export PCLINT_PATH=${CPWD}/tools/lint
 export PATH=$PATH:$PCLINT_PATH
 
 echo
