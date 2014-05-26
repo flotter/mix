@@ -151,7 +151,7 @@ fi
 echo
 echo "$(tput setaf 2)""Creating new MESA and MIX6000 branches for development""$(tput sgr 0)"
 echo 
-echo "$(tput setaf 2)""Please provide your MIX6000 development branch name: ""$(tput sgr 0)"
+echo "$(tput setaf 2)""Please provide your MIX6000 development branch name (or Enter to branch from Develop): ""$(tput sgr 0)"
 read BRANCHNAME
 echo
 
