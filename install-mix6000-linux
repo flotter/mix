@@ -23,7 +23,7 @@ echo
 echo "$(tput setaf 2)""Installing missing components on Ubuntu...""$(tput sgr 0)"
 echo
 
-sudo apt-get -y install git gawk wget diffstat unzip texinfo gcc-multilib build-essential chrpath libsdl1.2-dev xterm openjdk-7-jre wine kdiff3-qt gitk
+sudo apt-get -y install git gawk wget diffstat unzip texinfo gcc-multilib build-essential chrpath libsdl1.2-dev xterm openjdk-7-jre wine kdiff3-qt gitk putty
 
 git clone https://github.com/Angstrom-distribution/setup-scripts oe
 
@@ -204,7 +204,7 @@ ENVIR=`ls | grep environment`
 source ${ENVIR}
 
 echo
-echo "$(tput setaf 2)""$(tput bold)""Building MIX6000 SDK (and compiler)""$(tput sgr 0)"
+echo "$(tput setaf 2)""$(tput bold)""Building MIX6000 SDK (and compiler) ... go make some coffee ...""$(tput sgr 0)"
 echo 
 
 # Should we rebuild meta-toolchain?
@@ -215,19 +215,19 @@ cd build
 	CHECK1=$(ls | grep tmp)
 	if [ -z $CHECK1 ]; then
 	   cd ${CPWD}/oe
-	   bitbake meta-toolchain
+	   bitbake mix6000-image -c populate_sdk
 	else
 	   cd ${CPWD}/oe/build/
 	   cd $(ls | grep tmp)
 	   CHECK2=$(ls deploy/sdk/ | grep toolchain)
 	   if [ -z $CHECK2 ]; then
 	       cd ${CPWD}/oe
-	       bitbake meta-toolchain
+	       bitbake mix6000-image -c populate_sdk
 	   fi
 	fi
 else
    cd ${CPWD}/oe
-   bitbake meta-toolchain
+   bitbake mix6000-image -c populate_sdk
 fi
 
 # Should we reinstall sdk?
